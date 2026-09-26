@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { AuthResponse } from '../models/auth-response.model';
@@ -9,8 +9,28 @@ import { User } from '../models/user.model';
 export class AuthService {
   private readonly http = inject(HttpClient);
 
+  /**
+   * Utilisateur connecté (données publiques renvoyées par l'API).
+   * C'est un Signal : tout template qui appelle `currentUser()` est
+   * recalculé automatiquement quand la valeur change (profil réactif).
+   * Il vit uniquement en mémoire : perdu au rechargement de la page tant
+   * que `profile()` n'a pas été rappelé.
+   */
   readonly currentUser = signal<User | null>(null);
+
+  /**
+   * JWT courant. Initialisé depuis `localStorage` pour survivre à un
+   * rechargement de page. Ne jamais l'afficher ni le journaliser.
+   */
   readonly token = signal<string | null>(localStorage.getItem('gpc_token'));
+
+  /**
+   * Valeur dérivée : vrai tant qu'un token est présent. Se recalcule tout
+   * seul quand `token` change (`computed`). Indique seulement qu'un token
+   * est *présent*, pas qu'il est encore valide : seul le backend peut le
+   * vérifier, d'où `unauthorizedInterceptor` qui gère le cas 401.
+   */
+  readonly isAuthenticated = computed(() => this.token() !== null);
 
   login(email: string, password: string) {
     return this.http
