@@ -1,6 +1,6 @@
   # Préparation MongoDB Atlas - TP1
 
-Cette partie est réalisée une fois par binôme. Ne copiez jamais l'URI dans Angular, Git, une capture d'écran ou un prompt envoyé à un agent IA.
+Cette partie est réalisée une fois par l'élève. Ne copiez jamais l'URI dans Angular, Git, une capture d'écran ou un prompt envoyé à un agent IA.
 
 ## 1. Créer le cluster
 

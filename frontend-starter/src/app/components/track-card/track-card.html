@@ -1,0 +1,34 @@
+<article class="track-card" [class.is-playing]="playing()" [attr.aria-labelledby]="'track-title-' + track().id">
+  <div class="track-card__icon" aria-hidden="true">{{ playing() ? '♫' : '♪' }}</div>
+
+  <div class="track-card__body">
+    <h3 class="track-card__title" [id]="'track-title-' + track().id">{{ track().title }}</h3>
+    <p class="track-card__file" [title]="track().originalName">{{ track().originalName }}</p>
+
+    <dl class="track-card__meta">
+      <div><dt>Format</dt><dd>{{ format() }}</dd></div>
+      <div><dt>Taille</dt><dd>{{ track().size | fileSize }}</dd></div>
+      <div>
+        <dt>Ajout</dt>
+        <dd><time [attr.datetime]="track().createdAt">{{ track().createdAt | date: "dd/MM/yyyy 'à' HH:mm" }}</time></dd>
+      </div>
+    </dl>
+  </div>
+
+  <button
+    type="button"
+    class="track-card__play"
+    (click)="play.emit(track())"
+    [disabled]="loadingAudio()"
+    [attr.aria-pressed]="playing()"
+    [attr.aria-label]="(loadingAudio() ? 'Chargement de ' : playing() ? 'En lecture : ' : 'Lire ') + track().title"
+  >
+    @if (loadingAudio()) {
+      <span aria-hidden="true">…</span> Chargement
+    } @else if (playing()) {
+      <span aria-hidden="true">♫</span> En lecture
+    } @else {
+      <span aria-hidden="true">▶</span> Lire
+    }
+  </button>
+</article>

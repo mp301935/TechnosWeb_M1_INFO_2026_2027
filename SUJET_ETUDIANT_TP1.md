@@ -6,7 +6,7 @@ Ce TP long viendra s'intégrer plus tard avec une application pour s'entrainer �
 
 Construire et comprendre la partie utilisateur d’un portail Angular connecté à une API Express/Mongoose. À la fin de la séance, vous devez savoir expliquer le trajet d’une requête de connexion et afficher un profil utilisateur réactif.
 
-Durée maximale : 2 heures. Travail en binôme. L’usage d’un assistant IA est autorisé, mais chaque membre du binôme doit pouvoir expliquer et défendre le code produit.
+Durée maximale : 2 heures. Travail individuel. L’usage d’un assistant IA est autorisé, mais l’élève doit pouvoir expliquer et défendre le code produit.
 
 ## Objectifs
 

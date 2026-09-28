@@ -53,6 +53,22 @@ quand l'utilisateur clique sur « Se connecter ».
                                                  └───────────────────┘
 ```
 
+### Diagramme de séquence UML (draw.io)
+
+Une version plus détaillée de ce flux, sous forme de **diagramme de
+séquence** (lignes de vie, messages numérotés, retours en pointillés et
+fragment `alt` succès / échec), est fournie dans
+[`SCHEMA_FLUX_CONNEXION.drawio`](SCHEMA_FLUX_CONNEXION.drawio).
+
+Pour l'ouvrir : sur <https://app.diagrams.net> (ou draw.io Desktop, ou
+l'extension « Draw.io Integration » de VS Code / le plugin « Diagrams.net »
+de WebStorm) → *Fichier › Ouvrir depuis › Appareil* et choisir le fichier ;
+ou bien *Organiser › Insérer › Avancé › XML…* et coller son contenu.
+
+Aperçu (image exportée du même fichier) :
+
+![Diagramme de séquence du flux « Se connecter »](docs/sequence-connexion.png)
+
 Étapes annotées :
 
 1. L'utilisateur remplit le `FormGroup` réactif (`email`, `password`) et

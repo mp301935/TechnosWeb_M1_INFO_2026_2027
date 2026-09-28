@@ -4,7 +4,7 @@
 
 Faire évoluer une application Angular existante sans casser les fonctionnalités des TP1 et TP2. Vous allez ajouter une fonctionnalité métier, gérer une opération asynchrone plus précisément et écrire des tests automatisés.
 
-Durée maximale : 2 heures. Travail en binôme. L’usage d’un assistant IA est autorisé, mais chaque membre doit pouvoir expliquer le code et les tests produits.
+Durée maximale : 2 heures. Travail individuel. L’usage d’un assistant IA est autorisé, mais l’élève doit pouvoir expliquer le code et les tests produits.
 
 ## Prérequis
 
@@ -110,7 +110,7 @@ Dans la console, vérifier qu’aucune erreur inattendue ne reste affichée et q
 
 ## Restitution orale
 
-Chaque membre doit pouvoir expliquer :
+L’élève doit pouvoir expliquer :
 
 1. pourquoi la suppression passe par un service ;
 2. comment le backend protège la suppression ;

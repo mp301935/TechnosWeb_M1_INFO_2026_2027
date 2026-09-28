@@ -1,0 +1,25 @@
+OK   Page 1 : 5 cards affichées (limit=5)
+OK   Requête page 1 : /api/tracks?page=1&limit=5
+OK   Bouton Précédent désactivé en page 1
+OK   Page 2 : 2 cards (7 pistes au total)
+OK   Bouton Suivant désactivé en dernière page
+OK   Nouvelle requête HTTP avec page=2
+OK   Fichier .txt refusé côté client : Format non accepté (text/plain). Formats acceptés : MP3, WAV, OGG et M4A.
+OK   Bouton Envoyer désactivé si fichier invalide
+OK   Erreur 400 serveur affichée : Format audio non accepté (HTTP 400)
+OK   Nouvel essai possible après erreur serveur
+OK   Pendant l’envoi : bouton désactivé + « Envoi en cours… »
+OK   Upload en multipart : multipart/form-data
+OK   FormData reçu par Multer = audio + title : multipart reçu : champ fichier=audio(song1.mp3, audio/mpeg) champs texte={"title":"Blues en La"}
+OK   Upload envoyé avec Authorization: Bearer
+OK   Formulaire vidé après succès
+OK   Rechargement page 1 : nouvelle piste en tête
+OK   Requête audio avec Authorization: Bearer (ajouté par authInterceptor)
+OK   Réponse de lecture = flux audio (audio/mpeg)
+OK   Le lecteur <audio> reçoit une ObjectURL : blob:http://localhost:4300/307d32b6-96d9-4fad-9a7e-e77c6a28527d
+OK   Morceau en cours affiché
+OK   Ancienne ObjectURL révoquée lors du changement de piste
+OK   Piste d’un autre utilisateur refusée par le serveur (404)
+OK   URL audio appelée sans header (comme <audio src>) → 401
+OK   Erreur de lecture compréhensible (corps Blob lu et parsé)
+OK   ObjectURL finale révoquée à la destruction du composant
