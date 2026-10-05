@@ -6,7 +6,7 @@
   </div>
 
   <div class="grid">
-    <!-- ======================= Mission 3 : upload ======================= -->
+    <!-- ============ Mission 3 : upload — TP3 Mission 6 : progression ============ -->
     <article class="card upload-card" aria-labelledby="upload-title">
       <h2 id="upload-title">Importer</h2>
 
@@ -44,12 +44,43 @@
         </button>
       </form>
 
+      <!--
+        TP3 Mission 6 : un seul Signal `uploadState` (idle | uploading | success | error).
+        - idle      → rien n'est affiché ;
+        - uploading → barre + pourcentage (HORS région aria-live : annoncer
+                      chaque pourcentage serait très bruyant) ;
+        - success / error → message DANS la région aria-live (annoncé une fois).
+      -->
+      @let state = uploadState();
+      @if (state.status === 'uploading') {
+        <div class="upload-progress">
+          <!-- mat-progress-bar porte role="progressbar" et aria-valuenow. -->
+          <mat-progress-bar
+            [mode]="state.progress === null ? 'indeterminate' : 'determinate'"
+            [value]="state.progress ?? 0"
+            aria-label="Progression de l’envoi du fichier"
+          />
+          <p class="upload-progress__label">
+            @if (state.progress === null) {
+              Envoi en cours…
+            } @else if (state.progress < 100) {
+              Envoi : <b>{{ state.progress }} %</b>
+              <small>({{ state.loaded | fileSize }}@if (state.total) { / {{ state.total | fileSize }}})</small>
+            } @else {
+              <!-- 100 % = octets envoyés ; le serveur doit encore écrire le fichier et la métadonnée. -->
+              Fichier transmis, enregistrement par le serveur…
+            }
+          </p>
+        </div>
+      }
+
       <div aria-live="polite">
-        @if (uploadError(); as message) {
-          <p class="message message--error" role="alert">{{ message }}</p>
-        }
-        @if (uploadSuccess(); as message) {
-          <p class="message message--success" role="status">{{ message }}</p>
+        @if (state.status === 'success') {
+          <p class="message message--success" role="status">
+            « {{ state.track.title }} » a bien été ajoutée à votre bibliothèque.
+          </p>
+        } @else if (state.status === 'error') {
+          <p class="message message--error" role="alert">{{ state.message }}</p>
         }
       </div>
     </article>
@@ -95,7 +126,9 @@
               [track]="track"
               [playing]="currentTrack()?.id === track.id && audioUrl() !== null"
               [loadingAudio]="loadingTrackId() === track.id"
+              [deleting]="isDeleting(track.id)"
               (play)="play($event)"
+              (remove)="confirmRemove($event)"
             />
           </li>
         } @empty {

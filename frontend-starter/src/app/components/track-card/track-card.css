@@ -59,10 +59,22 @@
 .track-card__meta dt::after { content: ' :'; }
 .track-card__meta dd { margin: 0; font-weight: 600; }
 
-.track-card__play {
+.track-card.is-deleting { opacity: 0.6; }
+
+.track-card__actions {
+  display: flex;
+  flex-wrap: wrap;
   grid-column: 1 / -1;
-  justify-self: start;
-  min-width: 8rem;
+  gap: 0.5rem;
 }
 
-.track-card__play:focus-visible { outline: 3px solid #123d32; outline-offset: 2px; }
+.track-card__play { min-width: 8rem; }
+
+/* Action destructive : style secondaire rouge, contraste AA sur fond clair. */
+.track-card__delete {
+  color: #a32222;
+  background: #fdecec;
+}
+
+.track-card__play:focus-visible,
+.track-card__delete:focus-visible { outline: 3px solid #123d32; outline-offset: 2px; }

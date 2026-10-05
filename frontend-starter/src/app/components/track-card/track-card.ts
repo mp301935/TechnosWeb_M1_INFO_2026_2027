@@ -13,9 +13,11 @@ const FORMAT_LABELS: Record<string, string> = {
 };
 
 /**
- * Card d'une piste : titre, nom original, format, taille, date d'ajout
- * et action de lecture. Composant de présentation pur : il ne fait aucun
- * appel HTTP, il émet seulement `play` vers la page parente.
+ * Card d'une piste : titre, nom original, format, taille, date d'ajout,
+ * action de lecture et (TP3 Mission 5) action de suppression.
+ * Composant de présentation pur : il ne fait aucun appel HTTP, il émet
+ * seulement `play` et `remove` vers la page parente, qui décide quoi faire
+ * (confirmation, appel à `TrackService`, rafraîchissement).
  */
 @Component({
   selector: 'app-track-card',
@@ -30,7 +32,12 @@ export class TrackCardComponent {
   /** Vrai pendant le téléchargement du Blob de cette piste. */
   readonly loadingAudio = input(false);
 
+  /** TP3 — vrai pendant la requête `DELETE` de cette piste (anti double clic). */
+  readonly deleting = input(false);
+
   readonly play = output<Track>();
+  /** TP3 — demande de suppression ; la confirmation est faite par la page. */
+  readonly remove = output<Track>();
 
   readonly format = computed(() => FORMAT_LABELS[this.track().mimeType] ?? this.track().mimeType);
 }

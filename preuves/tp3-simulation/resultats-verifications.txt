@@ -1,0 +1,30 @@
+Vérifications TP3 — Chromium (Playwright) contre l'API simulée
+
+OK  | Connexion puis page 1 : 5 cards
+OK  | Chaque card a un bouton « Supprimer »
+OK  | Clic « Supprimer » → boîte de confirmation
+OK  | Focus initial sur « Annuler » (action destructive) — focus = 'Annuler'
+OK  | Échap → aucune requête DELETE
+OK  | Focus rendu au bouton d'origine après fermeture — 'Supprimer Blues en La'
+OK  | Pendant la requête : bouton désactivé, libellé « Suppression »
+OK  | Une seule requête DELETE malgré le double clic — [{"method": "DELETE", "url": "/api/tracks/f659a895c4beda986f3aee81", "status": 204, "auth": true}]
+OK  | DELETE /api/tracks/:id avec Authorization → 204
+OK  | Liste rechargée après suppression (GET page=1) — /api/tracks?page=1&limit=5
+OK  | « Blues en La » a disparu, une piste de la page 2 est remontée — Funk en Mi, Jazz en Fa, Rock en Ré, Bossa en Do, Reggae en Sol
+OK  | Compteur mis à jour : (5)
+OK  | Piste « Funk en Mi » supprimée côté serveur mais encore affichée
+OK  | DELETE → 404 puis liste rechargée
+OK  | La piste fantôme a disparu de l'écran
+OK  | Snackbar annoncée (aria-live dans le conteneur CDK)
+OK  | État initial : aucune barre de progression
+OK  | Pendant l'envoi : bouton, fichier et titre désactivés
+OK  | role=progressbar avec aria-valuenow — aria-valuenow=28
+OK  | Pourcentages croissants observés — [0, 3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 30]…
+OK  | État « 100 % → enregistrement par le serveur » affiché
+OK  | Succès : barre retirée, formulaire réactivé et vidé
+OK  | Un seul POST /api/tracks → 201 — [{"method": "POST", "url": "/api/tracks", "status": 201, "auth": true}]
+OK  | Échec : message d'erreur, bouton réactivé pour réessayer
+OK  | Le JWT n'apparaît jamais dans la console
+OK  | Le mot de passe n'apparaît jamais dans la console
+OK  | Aucune erreur console inattendue — []
+OK  | Toutes les requêtes /api/tracks portent Authorization: Bearer

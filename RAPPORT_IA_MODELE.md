@@ -1,4 +1,4 @@
-# Rapport d'usage de l'IA - TP1 et TP2
+# Rapport d'usage de l'IA - TP1, TP2 et TP3
 
 Pour chaque mission, détailler et fournir des explications concernant : objectif; prompt principal; plan proposé par l'agent; vérifications réalisées par l'élève; erreurs ou propositions rejetées; fichiers effectivement modifiés; preuve de fonctionnement; ce que l'élève sait maintenant expliquer sans l'agent.
 
@@ -556,6 +556,199 @@ les intercepteurs, `AuthService`, les autres pages.
 
 ---
 
+# TP3 — Fiabilisation et enrichissement du frontend
+
+> **Assistant IA utilisé pour le TP3** : Claude, identifiant de modèle déclaré
+> pour cette session : `claude-opus-5-5` (le modèle réellement servi peut
+> différer). Même mode agentique qu'aux TP1/TP2 : l'assistant a cloné le dépôt,
+> lu et modifié les fichiers, exécuté `npm run build`, `npm test` (frontend et
+> backend), un scénario navigateur, et lu leurs sorties.
+
+## Journal des interactions (TP3)
+
+| # | Qui | Message / action |
+|---|---|---|
+| 1 | Utilisateur | *« Fait moi le Sujet du TP3 en respectant les règles suivis jusqu'ici, si il y a des schémas à faire fait les en forme de diagram (séquence, ou autre) pas en txt. N'essaye rien de pousser dans le git donne moi les changemets et je pousserrais. Si tu as des questions sur le rendu ou autre pose les. »* |
+| 2 | Agent | Aucun fichier joint : rattachement en lecture du dépôt GitHub du projet et clonage. Aucun dossier de l'ordinateur de l'utilisateur n'a été demandé. |
+| 3 | Agent | Lecture **avant toute modification** de `SUJET_ETUDIANT_TP3.md`, de ce rapport (TP1/TP2), `README.md`, `CONSEILS_POUR_UTIISER_ASSISTANT_AI.md`, `API_CONTRACT.md`, `frontend-starter/AGENTS.md`, `CLAUDE.md`, `best-practices.md`, `backend/AGENTS.md`, `backend/CLAUDE.md`, `backend/best-practices.md`, `backend/src/*`, `backend/test/api.test.js`, de tout le code Angular concerné, de `TP2_ANALYSE_AUDIO.md` et `SCHEMA_FLUX_CONNEXION.md` (pour reprendre les conventions). |
+| 4 | Agent → Utilisateur | Trois questions (outil de questions à choix) : **(a)** confirmation par `MatDialog` ou `window.confirm()` — le SnackBar imposé exige déjà Angular Material ; **(b)** faire ou non l'extension backend facultative ; **(c)** format des schémas. |
+| 5 | Utilisateur | Réponses : **MatDialog**, **oui pour l'extension backend**, **Mermaid + PNG**. |
+| 6 | Agent | Liste de 5 tâches (Mission 5, Mission 6, Mission 7, documents/diagrammes, vérifications + rapport). |
+| 7 | Agent | Ajout d'Angular Material/CDK et de `jsdom`, configuration des tests, code des Missions 5 et 6, `npm run build` OK. |
+| 8 | Agent | Écriture des tests frontend (33) et backend (13 nouveaux), tous verts ; **12 bugs introduits volontairement** pour vérifier que les tests les détectent (tous détectés). |
+| 9 | Agent | Scénario navigateur : **découverte d'un vrai bug** (barre bloquée à 0 % — Angular 22 utilise `fetch` par défaut) → corrigé (`withXhr()`, `reportUploadProgress`), test de non-régression ajouté. Deux erreurs dans le script de test de l'agent lui-même corrigées. 28/28 vérifications OK. |
+| 10 | Agent | Correction visuelle (police serif dans le dialogue et la SnackBar), rédaction de `TP3_ANALYSE.md` (4 diagrammes Mermaid rendus et contrôlés visuellement), mise à jour du README et de ce rapport. |
+| 11 | Agent | Aucun `git commit` ni `git push` (consigne explicite de l'utilisateur) : les changements sont remis sous forme de patch. |
+
+---
+
+## Mission 5 — Suppression d'une piste
+
+### Objectif
+
+Ajouter la suppression d'une piste côté frontend (`DELETE /api/tracks/:id`,
+déjà fourni par le backend) : confirmation, anti double clic, SnackBar, mise à
+jour de la page, cas de la piste disparue ou d'un autre utilisateur.
+
+### État constaté avant modification
+
+| Exigence | Dans le code après TP2 ? |
+|---|---|
+| `TrackService.remove()` | ❌ absent |
+| Bouton « Supprimer » dans la card | ❌ (la card n'avait que « Lire ») |
+| Confirmation, état de suppression, SnackBar | ❌ (Angular Material non installé) |
+| Rechargement de la page courante | ✅ `load()` existait déjà et gérait le cas « page devenue vide » |
+| Route backend protégée par JWT + propriétaire | ✅ `app.delete(...)` avec `findOneAndDelete({ _id, ownerId })` |
+
+### Prompt principal
+
+Prompt global de l'interaction n° 1, complété par les réponses n° 5.
+
+### Plan proposé par l'agent
+
+1. `TrackService.remove(id)` → `http.delete('/api/tracks/' + encodeURIComponent(id))`.
+2. `TrackCard` : entrée `deleting`, sortie `remove`, bouton désactivé pendant la requête. Aucun appel HTTP dans la card.
+3. `ConfirmDialogComponent` générique (MatDialog), focus initial sur « Annuler ».
+4. `NotificationService` qui enveloppe `MatSnackBar` (testable par un faux).
+5. `TracksPage` : `confirmRemove()` → dialogue → `remove()` ; Signal `deletingIds` ; `204` → SnackBar + `load()` ; `404` → SnackBar explicite + `load()` ; autres erreurs → message du serveur ; arrêt du lecteur si la piste supprimée était en lecture.
+6. Ne pas toucher au backend ni au contrat.
+
+### Vérifications réalisées
+
+- `npm run build` : OK.
+- Tests de composant (`tracks-page.spec.ts`) : confirmation avant appel, URL et méthode, bouton désactivé, une seule requête en cas de double clic, annulation sans requête, 404 et 500.
+- Tests backend : 401 sans JWT / JWT invalide, 404 et fichier intact pour la piste d'un autre utilisateur, 204 et fichier supprimé pour la propriétaire.
+- Navigateur (API simulée) : focus, Échap, retour du focus, une seule requête `DELETE` malgré un double clic, `Authorization` présent, rechargement, piste « fantôme » retirée après 404.
+- *(À faire par l'élève)* : captures Network réelles (voir `TP3_ANALYSE.md` § 5).
+
+### Erreurs ou propositions rejetées
+
+- **Rejeté** : retirer seulement la card du tableau local après suppression. Total, nombre de pages et contenu de la page auraient été faux ; on recharge depuis le serveur, comme pour la pagination du TP2.
+- **Rejeté** : `window.confirm()` (choix de l'utilisateur pour MatDialog : cohérent avec la SnackBar, accessible, testable).
+- **Rejeté** : distinguer « piste supprimée » et « piste d'un autre utilisateur » côté frontend. Le backend renvoie volontairement `404` dans les deux cas pour ne rien révéler ; le message couvre les deux.
+- **Corrigé** : texte du dialogue et de la SnackBar en police serif (le thème Material attend Roboto, non chargée) → jetons CSS de police dans `styles.css`.
+
+### Fichiers effectivement modifiés
+
+Ajoutés : `components/confirm-dialog/confirm-dialog.{ts,html,css}`, `shared/services/notification.service.ts`, `shared/models/confirm-dialog-data.model.ts`.
+Modifiés : `shared/services/track.service.ts`, `components/track-card/track-card.{ts,html,css}`, `components/tracks-page/tracks-page.{ts,html,css}`, `src/styles.css`, `angular.json` (thème Material), `package.json` / `package-lock.json` (`@angular/material`, `@angular/cdk`).
+Non modifiés : tout `backend/src`, `API_CONTRACT.md` (route inchangée).
+
+### Preuve de fonctionnement
+
+`preuves/tp3-simulation/01` à `05-*.png` et `resultats-verifications.txt`. Captures réelles à ajouter par l'élève :
+- *(lien vers la capture Network : DELETE après confirmation → 204, puis GET de la liste)*
+- *(lien vers la capture Network : DELETE → 404 depuis un second onglet)*
+
+### Ce que l'élève sait maintenant expliquer sans l'agent
+
+- Pourquoi la card émet un événement au lieu d'appeler le service, et pourquoi la page passe par `TrackService`.
+- Pourquoi un `Set` d'identifiants plutôt qu'un booléen pour l'état de suppression.
+- Pourquoi le guard et le bouton ne protègent rien, et comment `auth` + `findOneAndDelete({ _id, ownerId: req.auth.sub })` protègent la suppression.
+- Pourquoi un `404` déclenche un rechargement de la liste.
+
+---
+
+## Mission 6 — Progression de l'upload
+
+### Objectif
+
+Afficher la progression de l'upload avec les événements HTTP d'Angular et
+distinguer : aucun upload, upload en cours avec pourcentage, réussite, échec.
+
+### Plan proposé par l'agent
+
+1. `TrackService.upload()` renvoie `Observable<HttpEvent<Track>>` (`observe: 'events'`, `reportUploadProgress: true`).
+2. Type `UploadState` (union discriminée) + fonction pure `uploadStateFromEvent()` (testable sans Angular).
+3. Un seul Signal `uploadState` dans `TracksPage` (remplace `uploading`, `uploadError`, `uploadSuccess` du TP2) ; `uploading` devient un `computed`.
+4. `mat-progress-bar` (déterminée, ou indéterminée si la taille totale est inconnue), état « 100 % → enregistrement par le serveur ».
+5. Région `aria-live` seulement pour succès/erreur (annoncer chaque pourcentage serait trop bruyant).
+6. Contrôles désactivés, garde anti double soumission, annulation de l'upload si on quitte la page.
+
+### Vérifications réalisées
+
+- Tests : 6 tests de `uploadStateFromEvent`, 3 tests de composant (progression 40 % puis 100 % puis succès, erreur 400 puis réessai, fichier invalide sans requête), test du service (options et `FormData`).
+- Navigateur : débit d'envoi limité ; pourcentages observés 0, 3, 5, … 98 %, puis « Fichier transmis… », puis succès ; `role="progressbar"` avec `aria-valuenow` ; un seul `POST`.
+
+### Erreurs ou propositions rejetées
+
+- **Bug réel introduit par l'agent puis corrigé** : première version avec `reportProgress: true` (habitude des versions précédentes d'Angular). Tous les tests unitaires passaient, mais dans le navigateur la barre restait à **0 %** pendant 4,7 s puis passait au succès. Diagnostic en lisant le code d'Angular dans `node_modules/@angular/common` : **depuis Angular 22, `HttpClient` utilise `fetch` par défaut**, qui ne fournit pas la progression d'un envoi ; `reportProgress` est déprécié. Correction : `withXhr()` dans la configuration, option `reportUploadProgress: true` (avec `fetch`, Angular lèverait alors l'erreur claire NG02824), configuration déplacée dans `app.config.ts` et test `app.config.spec.ts` ajouté. Leçon : les tests unitaires remplacent le backend HTTP, ils ne pouvaient pas voir ce problème.
+- **Défaut d'affichage corrigé** : « 30 %(1 Mo / 3,4 Mo) » sans espace (Angular supprime les espaces entre éléments) → marge CSS.
+- **Rejeté** : annoncer chaque pourcentage aux lecteurs d'écran.
+
+### Fichiers effectivement modifiés
+
+Ajoutés : `shared/models/upload-state.model.ts`, `shared/utils/upload-state.ts`, `src/app/app.config.ts`.
+Modifiés : `shared/services/track.service.ts`, `components/tracks-page/*`, `src/main.ts` (utilise `appConfig`).
+
+### Preuve de fonctionnement
+
+`preuves/tp3-simulation/06` à `09-*.png`. À ajouter par l'élève :
+- *(lien vers la capture Network de l'upload avec un débit réduit)*
+
+### Ce que l'élève sait maintenant expliquer sans l'agent
+
+- La suite d'événements `Sent` → `UploadProgress`… → `ResponseHeader` → `Response`, et le calcul `round(100 × loaded / total)`.
+- Pourquoi 100 % ne signifie pas « enregistré ».
+- Pourquoi `withXhr()` est obligatoire avec Angular 22 pour la progression d'un envoi.
+- Pourquoi un seul Signal d'état évite les états incohérents.
+
+---
+
+## Mission 7 — Tests automatisés
+
+### Objectif
+
+Au moins trois tests frontend utiles, sans backend ni MongoDB ; extension
+backend facultative sans modifier les routes.
+
+### Plan proposé par l'agent
+
+1. Configurer `ng test` (Vitest, déjà présent) : `tsconfig.spec.json`, exclusion des specs du build, cible `test` reliée au build, `jsdom`.
+2. Tests de services avec `HttpTestingController` (URL, méthode, paramètres, corps, headers).
+3. Tests des intercepteurs branchés comme dans l'application, et du guard.
+4. Tests de composant de `TracksPage` (vrai service, faux backend HTTP, faux dialogue, fausse SnackBar).
+5. Backend : nouveau fichier `api-contract.test.js` avec `node:test` et `t.mock.method` sur le modèle `Track`.
+6. Vérifier que les tests **échouent** quand on introduit un bug.
+
+### Vérifications réalisées
+
+- Frontend : `Test Files 7 passed, Tests 33 passed`.
+- Backend : `tests 15, pass 15, fail 0` (2 existants + 13 nouveaux), aucune route modifiée (`git status` : seul le fichier de test est nouveau dans `backend/`), dossier `data/uploads` laissé vide après les tests.
+- 12 bugs introduits volontairement puis retirés : tous détectés (tableau dans `TP3_ANALYSE.md` § 4.4).
+
+### Erreurs ou propositions rejetées
+
+- `ng test` échouait d'abord : « Configuration 'development' for target 'build' … is not set » → cible `test` reliée à `gpc:build`.
+- Ajout du test « fichier > 25 Mo », demandé par `backend/best-practices.md`, en plus de la liste du sujet.
+- **Rejeté** : `mongodb-memory-server` (téléchargement d'un binaire MongoDB, bloqué au TP2) ; on simule les méthodes du modèle, ce qui suffit pour vérifier le contrat.
+
+### Fichiers effectivement modifiés
+
+Ajoutés : 7 fichiers `*.spec.ts` (frontend), `backend/test/api-contract.test.js`, `frontend-starter/tsconfig.spec.json`.
+Modifiés : `angular.json`, `tsconfig.json`, `tsconfig.app.json`, `package.json` (`jsdom`).
+Non modifié : `backend/test/api.test.js`.
+
+### Preuve de fonctionnement
+
+Sorties de `npm test` ci-dessus ; rapport des tests (attendu / observé) dans `TP3_ANALYSE.md` § 4.
+
+### Ce que l'élève sait maintenant expliquer sans l'agent
+
+- Le rôle de `provideHttpClientTesting`, `expectOne`, `flush`, `event`, `verify`.
+- Pourquoi les tests n'ont besoin ni du backend ni de MongoDB.
+- Ce que vérifient un test d'intercepteur et un test de guard.
+- La différence entre test unitaire et test d'intégration, illustrée par le bug `fetch`.
+
+---
+
+## Demandes complémentaires du TP3
+
+- **Schémas en diagrammes** (demande de l'utilisateur) : 4 diagrammes Mermaid dans `TP3_ANALYSE.md` (séquence de la suppression, séquence de l'upload avec progression, diagramme d'états de l'upload, architecture des tests), rendus en PNG dans `docs/tp3-*.png` avec `@mermaid-js/mermaid-cli` (syntaxe validée) et contrôlés visuellement. Le diagramme d'architecture du README a été mis à jour (ConfirmDialog, NotificationService, `withXhr`, `remove`) et `docs/architecture.png` régénéré.
+- **Pas de push** : aucun commit ni push effectué par l'agent.
+
+---
+
 ## Environnement d'exécution (pour traçabilité)
 
 - Dépôt cloné dans un conteneur cloud isolé, relié également à l'ordinateur
@@ -573,3 +766,11 @@ les intercepteurs, `AuthService`, les autres pages.
   de ces outils n'a été ajouté aux `package.json` du projet.
 - `git push` refusé depuis la session (droits GitHub de l'application
   Claude) : les modifications sont à commiter par l'élève.
+- TP3 : même type de conteneur ; Node isolé `v24.21.0` hors du dépôt. Outils
+  hors dépôt : Playwright (Python) + Chromium préinstallés, `express` +
+  `multer` pour l'API simulée (`/home/claude/e2e`), `@mermaid-js/mermaid-cli`.
+  Dépendances ajoutées **au projet** : `@angular/material` et `@angular/cdk`
+  (SnackBar et Dialog exigés/choisis), `jsdom` en développement (tests).
+- Aucun secret n'a été lu ou demandé ; les tokens utilisés dans les tests sont
+  des chaînes fictives ou signés avec le secret de développement par défaut du
+  backend.

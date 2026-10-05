@@ -35,3 +35,43 @@ audio { width: 100%; }
   nav { margin-top: 1rem; }
   .grid .card { margin-bottom: 1rem; }
 }
+
+/* ===================================================================
+ * TP3 — Angular Material (SnackBar, Dialog, ProgressBar)
+ * Le thème prédéfini `azure-blue.css` est chargé dans angular.json ;
+ * on remplace ici sa couleur principale par le vert de l'application.
+ * Ces règles sont GLOBALES car la SnackBar et le Dialog sont affichés dans
+ * un « overlay » ajouté à la fin du <body>, hors des composants : les
+ * styles encapsulés d'un composant ne les atteignent pas.
+ * =================================================================== */
+html {
+  --mat-sys-primary: #1d755e;
+  --mat-sys-primary-container: #e4f1ec;
+  /* Le thème Material prévoit la police Roboto, non chargée ici : sans ces
+     jetons, le texte du dialogue et de la SnackBar passerait en police serif. */
+  --mat-dialog-subhead-font: Inter, system-ui, sans-serif;
+  --mat-dialog-supporting-text-font: Inter, system-ui, sans-serif;
+  --mat-dialog-supporting-text-color: #17312a;
+  --mat-snack-bar-supporting-text-font: Inter, system-ui, sans-serif;
+}
+
+/* La règle globale `button { background: #1d755e }` s'appliquerait aussi au
+   bouton d'action de la SnackBar : on la neutralise dans ce contexte. */
+.mat-mdc-snack-bar-container button {
+  padding: 0.3rem 0.7rem;
+  font-family: inherit;
+  background: transparent;
+}
+
+.snack--success {
+  --mat-snack-bar-container-color: #123d32;
+  --mat-snack-bar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #b7e2cc;
+}
+
+.snack--error {
+  --mat-snack-bar-container-color: #8a1f1f;
+  --mat-snack-bar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #ffd7d7;
+}
+

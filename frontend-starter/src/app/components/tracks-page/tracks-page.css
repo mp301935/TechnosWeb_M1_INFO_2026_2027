@@ -13,6 +13,12 @@ h2 { margin-top: 0; }
 .message--error { color: #8a1f1f; background: #fdecec; border: 1px solid #f3c1c1; }
 .message--success { color: #135c3f; background: #e5f6ee; border: 1px solid #b7e2cc; }
 
+.upload-progress { margin: 0.8rem 0 0; }
+.upload-progress mat-progress-bar { border-radius: 4px; }
+.upload-progress__label { margin: 0.4rem 0 0; font-size: 0.9rem; color: #17312a; }
+/* Angular supprime les espaces entre éléments : l’écart est donné en CSS. */
+.upload-progress__label small { margin-left: 0.35em; color: #4d625c; }
+
 .link { padding: 0 0.3rem; color: inherit; text-decoration: underline; background: none; }
 
 .loading { display: flex; align-items: center; gap: 0.5rem; color: #4d625c; }
